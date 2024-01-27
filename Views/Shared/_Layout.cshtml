@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - StackOverflow</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/StackOverflow.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">StackOverflow</a>
+            <div>
+                <button id="signUpBtn" onclick="saveCredentials()" class="btn btn-dark">
+                    Sign Up
+                </button>
+                <button id="logInBtn" onclick="getCredentials()" class=" btn btn-dark">
+                    Log In
+                </button>
+
+                <button id="signOutBtn" onclick="signOut()" class=" btn btn-dark">
+                    Sign Out
+                </button>
+
+            </div>
+        </nav>
+        <p id="statusMessage"></p>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - StackOverflow
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        let isUserSignedIn = false;
+        async function saveCredentials() {
+            isUserSignedIn = true;
+            const credentials = new PasswordCredential({
+                id: "user123",
+                password: "password123"
+            });
+
+            await navigator.credentials.store(credentials);
+
+            document.getElementById("statusMessage").innerText = "Credentials saved successfully!";
+        }
+
+        async function getCredentials() {
+            const credentials = await navigator.credentials.get({
+                password: true
+            });
+
+            if (credentials) {
+                isUserSignedIn = true;
+                document.getElementById("statusMessage").innerText = "Logged in with credentials: " + credentials.id;
+            } else {
+                isUserSignedIn = false;
+                document.getElementById("statusMessage").innerText = "No stored credentials found";
+            }
+        }
+
+        async function signOut() {
+            isUserSignedIn = false;
+            await navigator.credentials.preventSilentAccess();
+            document.getElementById("statusMessage").innerText = "Signed out successfully!";
+        }
+
+        if (isUserSignedIn) {
+            document.getElementById("signUpBtn").style.display = "none";
+            document.getElementById("logInBtn").style.display = "none";
+            document.getElementById("signOutBtn").style.display = "block";
+        } else {
+            document.getElementById("signUpBtn").style.display = "block";
+            document.getElementById("logInBtn").style.display = "block";
+            document.getElementById("signOutBtn").style.display = "none";
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

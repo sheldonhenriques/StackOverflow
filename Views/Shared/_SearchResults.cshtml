@@ -1,0 +1,79 @@
+﻿@model List<SearchResultViewModel>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<div class="text-center" id="searchResultsContainer">
+    @if (Model == null)
+    {
+        <p>No search results found.</p>
+    }
+    else
+    {
+        <div class="row mt-3">
+            @foreach (var post in Model)
+            {
+                <div class="col-md-12">
+
+                    <div class="card">
+                        <div class="s-post-summary--stats js-post-summary-stats">
+                            <div class="s-post-summary--stats-item s-post-summary--stats-item__emphasized" title="Score of @post.Votes">
+                                <span class="s-post-summary--stats-item-number">@post.Votes</span>
+                                <span class="s-post-summary--stats-item-unit">votes</span>
+                            </div>
+                            <div class="s-post-summary--stats-item has-answers has-accepted-answer" title="one of the answers was accepted as the correct answer">
+                                <svg aria-hidden="true" class="svg-icon iconCheckmarkSm" width="14" height="14" viewBox="0 0 14 14"><path d="M13 3.41 11.59 2 5 8.59 2.41 6 1 7.41l4 4 8-8Z"></path></svg>
+                                <span class="s-post-summary--stats-item-number">@post.AnswerCount</span>
+                                <span class="s-post-summary--stats-item-unit">answers</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3 class="s-post-summary--content-title">
+                                <p>@post.Title</p>
+                            </h3>
+                            @post.Description...
+                            <div class="s-user-card__minimal d-flex justify-content-between" aria-live="polite">
+                                <div class="s-user-card--info d-flex justify-content-end">
+                                    <div class="s-user-card--link d-flex gs4 s-user-card--common">
+                                        <p class="username">@post.UserName</p>
+                                    </div>
+                                    <ul class="s-user-card--awards s-user-card--common">
+                                        <li class="s-user-card--rep">
+                                            <span class="todo-no-class-here" title="reputation score @post.Reputation" dir="ltr">@post.Reputation Reputation</span>
+                                        </li>
+                                    </ul>
+                                    <ul class="s-user-card--awards s-user-card--common">
+                                        <li class="s-user-card--rep">
+                                            <span class="todo-no-class-here" title="Number of Badges is @post.Badges" dir="ltr">@post.Badges Badges</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            }
+            <div id="container_@ViewData["PageNumber"]"><button id="loadButton_@ViewData["PageNumber"]" class="btn btn-dark" type="button">Load More</button></div>
+        </div>
+    }
+</div>
+
+<script>
+    $(document).ready(function () {
+        var page = @Html.Raw(Json.Serialize(ViewData["PageNumber"]));
+        $('#loadButton_' + page).click(function () {
+            var searchString = $('#searchString').val();
+            $.ajax({
+                url: '/Search/_SearchResults',
+                type: 'GET',
+                data: { searchString: searchString, page: page },
+                success: function (data) {
+                    $('#container_' + page).html(data);
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    });
+</script>
